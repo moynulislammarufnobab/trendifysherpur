@@ -34,6 +34,7 @@ export const AdminPanel: React.FC = () => {
     addProduct,
     updateProduct,
     deleteProduct,
+    clearAllProducts,
     addBanner,
     deleteBanner,
     addCoupon,
@@ -319,13 +320,28 @@ export const AdminPanel: React.FC = () => {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h4 className="text-xs font-bold uppercase text-slate-400">Manage Store Products</h4>
-                <button
-                  onClick={() => setShowAddProductModal(true)}
-                  className="bg-[#0A2342] text-[#D4AF37] font-bold text-xs px-3.5 py-2 rounded-xl flex items-center space-x-1 border border-[#D4AF37]/40"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Add New Product</span>
-                </button>
+                <div className="flex items-center space-x-2">
+                  {products.length > 0 && (
+                    <button
+                      onClick={async () => {
+                        if (confirm('সব প্রোডাক্ট মুছে ফেলতে চান? / Are you sure you want to delete all products?')) {
+                          await clearAllProducts();
+                        }
+                      }}
+                      className="bg-rose-600 text-white font-bold text-xs px-3 py-2 rounded-xl flex items-center space-x-1 hover:bg-rose-700 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>Delete All ({products.length})</span>
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setShowAddProductModal(true)}
+                    className="bg-[#0A2342] text-[#D4AF37] font-bold text-xs px-3.5 py-2 rounded-xl flex items-center space-x-1 border border-[#D4AF37]/40"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add New Product</span>
+                  </button>
+                </div>
               </div>
 
               {/* Add Product Form Modal */}

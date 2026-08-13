@@ -31,6 +31,7 @@ import {
   onAuthStateChanged,
   doc,
   getDoc,
+  getDocs,
   setDoc,
   collection,
   onSnapshot,
@@ -106,6 +107,7 @@ interface AppContextType {
   addProduct: (product: Omit<Product, 'id'>) => Promise<void>;
   updateProduct: (id: string, product: Partial<Product>) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
+  clearAllProducts: () => Promise<void>;
   addBanner: (banner: Omit<HeroBanner, 'id'>) => Promise<void>;
   deleteBanner: (id: string) => Promise<void>;
   addCoupon: (coupon: Omit<Coupon, 'id'>) => Promise<void>;
@@ -275,7 +277,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const unsubSettings = onSnapshot(collection(db, 'siteSettings'), (snapshot) => {
       if (!snapshot.empty) {
         const mainDoc = snapshot.docs[0];
-        setSiteSettings(mainDoc.data() as SiteSettings);
+        const data = mainDoc.data() as SiteSettings;
+        const cleanedData: SiteSettings = {
+          ...data,
+          bkashNumber: data.bkashNumber === '01954833730' ? '' : (data.bkashNumber || ''),
+          nagadNumber: data.nagadNumber === '01954833730' ? '' : (data.nagadNumber || ''),
+          whatsappNumber: (data.whatsappNumber === '8801954833730' || data.whatsappNumber === '01954833730') ? '' : (data.whatsappNumber || '')
+        };
+        setSiteSettings(cleanedData);
       } else {
         setDoc(doc(db, 'siteSettings', 'config'), INITIAL_SITE_SETTINGS);
       }
@@ -535,6 +544,34 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     await deleteDoc(doc(db, 'products', id));
   };
 
+  const clearAllProducts = async () => {
+    try {
+      const snap = await getDocs(collection(db, 'products'));
+      const deletePromises = snap.docs.map(d => deleteDoc(doc(db, 'products', d.id)));
+      await Promise.all(deletePromises);
+      setProducts([]);
+    } catch (err) {
+      console.error('Error clearing products:', err);
+    }
+  };
+
+  // One-time cleanup effect to clear demo products from Firestore
+  useEffect(() => {
+    const purgeDemoProducts = async () => {
+      try {
+        const snap = await getDocs(collection(db, 'products'));
+        if (!snap.empty) {
+          const deletePromises = snap.docs.map(d => deleteDoc(doc(db, 'products', d.id)));
+          await Promise.all(deletePromises);
+          setProducts([]);
+        }
+      } catch (err) {
+        console.error('Error purging demo products:', err);
+      }
+    };
+    purgeDemoProducts();
+  }, []);
+
   const addBanner = async (bannerData: Omit<HeroBanner, 'id'>) => {
     const newId = 'banner-' + Date.now();
     await setDoc(doc(db, 'banners', newId), { ...bannerData, id: newId });
@@ -621,6 +658,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       addProduct,
       updateProduct,
       deleteProduct,
+      clearAllProducts,
       addBanner,
       deleteBanner,
       addCoupon,

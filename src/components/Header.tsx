@@ -80,11 +80,15 @@ export const Header: React.FC = () => {
           </span>
         </div>
         <div className="hidden md:flex items-center space-x-3 text-[11px]">
-          <a href={`tel:${siteSettings.bkashNumber}`} className="hover:text-[#D4AF37] flex items-center space-x-1 transition-colors">
-            <PhoneCall className="w-3 h-3 text-[#D4AF37]" />
-            <span>{siteSettings.bkashNumber}</span>
-          </a>
-          <span>|</span>
+          {siteSettings.bkashNumber ? (
+            <>
+              <a href={`tel:${siteSettings.bkashNumber}`} className="hover:text-[#D4AF37] flex items-center space-x-1 transition-colors">
+                <PhoneCall className="w-3 h-3 text-[#D4AF37]" />
+                <span>{siteSettings.bkashNumber}</span>
+              </a>
+              <span>|</span>
+            </>
+          ) : null}
           <a href={siteSettings.whatsappGroup} target="_blank" rel="noopener noreferrer" className="hover:text-[#D4AF37] text-[#E8C76A] font-medium flex items-center space-x-1">
             <MessageCircle className="w-3 h-3" />
             <span>{language === 'bn' ? 'হোয়াটসঅ্যাপ গ্রুপ' : 'WhatsApp VIP Group'}</span>

@@ -3,9 +3,9 @@ import { Product, HeroBanner, Coupon, Review, SiteSettings } from '../types';
 export const INITIAL_SITE_SETTINGS: SiteSettings = {
   deliveryFeeInside: 60,
   deliveryFeeOutside: 120,
-  bkashNumber: '01954833730',
-  nagadNumber: '01954833730',
-  whatsappNumber: '8801954833730',
+  bkashNumber: '',
+  nagadNumber: '',
+  whatsappNumber: '',
   whatsappGroup: 'https://chat.whatsapp.com/GODppLnNvhuITvzjePfsOr',
   telegramChannel: 'https://t.me/Trendify_Sherpur',
   telegramSupport: 'https://t.me/TrendifySherpur',
