@@ -1,0 +1,6 @@
+{
+  "name": "Trendify Sherpur",
+  "description": "A luxury e-commerce web application for Trendify Sherpur featuring flash sales, product categories, PDP, manual payment verification (Bkash/Nagad/COD), customer dashboard, affiliate referral, and dynamic admin management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

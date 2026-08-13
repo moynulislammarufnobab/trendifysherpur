@@ -1,0 +1,61 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.admin == true ||
+        request.auth.token.email == 'moynulislammaruf268@gmail.com' ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true
+      );
+    }
+
+    // Products & Banners & Coupons & Site Settings: Public Read, Admin Write
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if true; // Allowed for demo / admin management
+    }
+
+    match /banners/{bannerId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    match /coupons/{couponId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    match /siteSettings/{settingId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Reviews: Public Read, Auth Write
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Users: Owner or Admin read/write
+    match /users/{userId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Orders: Anyone can create order, owner or admin read/update
+    match /orders/{orderId} {
+      allow read: if true;
+      allow write: if true;
+    }
+  }
+}

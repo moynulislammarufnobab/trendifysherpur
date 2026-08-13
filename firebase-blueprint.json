@@ -1,0 +1,138 @@
+{
+  "entities": {
+    "users": {
+      "title": "User Profile",
+      "description": "Customer and Admin profiles with referral tracking",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "phone": { "type": "string" },
+        "address": { "type": "string" },
+        "referralCode": { "type": "string" },
+        "referredBy": { "type": "string" },
+        "referralEarnings": { "type": "number" },
+        "isAdmin": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "email"]
+    },
+    "products": {
+      "title": "Products",
+      "description": "E-commerce product catalog with variants and flash sale details",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "titleBn": { "type": "string" },
+        "price": { "type": "number" },
+        "originalPrice": { "type": "number" },
+        "category": { "type": "string" },
+        "images": { "type": "array", "items": { "type": "string" } },
+        "description": { "type": "string" },
+        "descriptionBn": { "type": "string" },
+        "inStock": { "type": "boolean" },
+        "stockCount": { "type": "number" },
+        "isFlashSale": { "type": "boolean" },
+        "flashSaleEndTime": { "type": "string" },
+        "colors": { "type": "array", "items": { "type": "string" } },
+        "sizes": { "type": "array", "items": { "type": "string" } },
+        "rating": { "type": "number" },
+        "reviewCount": { "type": "number" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["title", "price", "category"]
+    },
+    "orders": {
+      "title": "Orders",
+      "description": "Customer order with payment verification and status",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "userPhone": { "type": "string" },
+        "deliveryArea": { "type": "string" },
+        "address": { "type": "string" },
+        "items": { "type": "array" },
+        "subtotal": { "type": "number" },
+        "shippingFee": { "type": "number" },
+        "discountAmount": { "type": "number" },
+        "totalAmount": { "type": "number" },
+        "paymentMethod": { "type": "string" },
+        "senderPhone": { "type": "string" },
+        "trxId": { "type": "string" },
+        "paymentStatus": { "type": "string" },
+        "orderStatus": { "type": "string" },
+        "appliedCoupon": { "type": "string" },
+        "referralCode": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "items", "totalAmount", "paymentMethod", "orderStatus"]
+    },
+    "banners": {
+      "title": "Hero Banners",
+      "description": "Sliders for home page",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "titleBn": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "tag": { "type": "string" },
+        "image": { "type": "string" },
+        "link": { "type": "string" },
+        "active": { "type": "boolean" }
+      }
+    },
+    "coupons": {
+      "title": "Coupons",
+      "description": "Discount voucher system",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "code": { "type": "string" },
+        "discountType": { "type": "string" },
+        "discountValue": { "type": "number" },
+        "minSpend": { "type": "number" },
+        "active": { "type": "boolean" }
+      }
+    },
+    "reviews": {
+      "title": "Product Reviews",
+      "description": "Customer rating, comments, and media reviews",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "productId": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "userAvatar": { "type": "string" },
+        "rating": { "type": "number" },
+        "comment": { "type": "string" },
+        "photo": { "type": "string" },
+        "videoUrl": { "type": "string" },
+        "createdAt": { "type": "string" }
+      }
+    },
+    "siteSettings": {
+      "title": "Site Configuration",
+      "description": "Editable store policies, fees, contact and social links",
+      "type": "object",
+      "properties": {
+        "deliveryFeeInside": { "type": "number" },
+        "deliveryFeeOutside": { "type": "number" },
+        "bkashNumber": { "type": "string" },
+        "nagadNumber": { "type": "string" },
+        "whatsappNumber": { "type": "string" },
+        "whatsappGroup": { "type": "string" },
+        "telegramChannel": { "type": "string" },
+        "telegramSupport": { "type": "string" },
+        "facebookUrl": { "type": "string" },
+        "tiktokUrl": { "type": "string" }
+      }
+    }
+  }
+}
