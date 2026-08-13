@@ -12,7 +12,11 @@ import {
   Copy, 
   Gift, 
   User, 
-  LogOut 
+  LogOut,
+  Globe,
+  Phone,
+  CreditCard,
+  FileText
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import { useApp } from '../context/AppContext';
@@ -57,33 +61,70 @@ export const CustomerDashboard: React.FC = () => {
     doc.rect(0, 0, 210, 40, 'F');
 
     doc.setTextColor(212, 175, 55);
-    doc.setFontSize(22);
+    doc.setFontSize(20);
     doc.setFont('helvetica', 'bold');
     doc.text('TRENDIFY SHERPUR', 14, 22);
 
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(10);
-    doc.text('Customer Invoice', 14, 30);
-    doc.text(`Order ID: ${order.id}`, 140, 22);
+    doc.text('Customer Invoice & Order Details', 14, 30);
+    doc.text(`Order ID: ${order.id}`, 140, 20);
+    doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, 140, 27);
+    doc.text(`IP: ${order.ipAddress || 'Recorded'}`, 140, 34);
 
     doc.setTextColor(28, 28, 28);
     doc.setFontSize(11);
-    doc.text(`Customer: ${order.userName}`, 14, 55);
-    doc.text(`Phone: ${order.userPhone}`, 14, 62);
-    doc.text(`Status: ${order.orderStatus} (${order.paymentStatus})`, 14, 69);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Customer & Shipping Details:', 14, 52);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text(`Name: ${order.userName}`, 14, 60);
+    doc.text(`Phone: ${order.userPhone}`, 14, 66);
+    doc.text(`Email: ${order.userEmail}`, 14, 72);
+    doc.text(`Area: ${order.shippingDetails.deliveryArea === 'inside' ? 'Inside Sherpur Sadar' : 'Outside Sherpur'}`, 14, 78);
+    doc.text(`Address: ${order.shippingDetails.address}`, 14, 84);
+    if (order.shippingDetails.thana || order.shippingDetails.district) {
+      doc.text(`Thana/District: ${order.shippingDetails.thana || ''}, ${order.shippingDetails.district || ''}`, 14, 90);
+    }
 
-    let y = 85;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Payment Information:', 120, 52);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Method: ${order.paymentMethod.toUpperCase()}`, 120, 60);
+    doc.text(`Payment Status: ${order.paymentStatus}`, 120, 66);
+    doc.text(`Order Status: ${order.orderStatus}`, 120, 72);
+    if (order.senderPhone) doc.text(`Sender Phone: ${order.senderPhone}`, 120, 78);
+    if (order.trxId) doc.text(`TrxID: ${order.trxId}`, 120, 84);
+
+    let y = 102;
+    doc.setFont('helvetica', 'bold');
     doc.text('Items Purchased:', 14, y);
     y += 8;
 
     order.items.forEach(item => {
-      doc.text(`- ${item.title} (x${item.quantity}) : BDT ${item.price * item.quantity}`, 18, y);
+      let itemDesc = `- ${item.title} (x${item.quantity}) : BDT ${item.price * item.quantity}`;
+      if (item.selectedColor || item.selectedSize) {
+        itemDesc += ` [${item.selectedColor ? 'Color: ' + item.selectedColor : ''} ${item.selectedSize ? 'Size: ' + item.selectedSize : ''}]`;
+      }
+      doc.setFont('helvetica', 'normal');
+      doc.text(itemDesc, 18, y);
       y += 6;
     });
 
-    y += 10;
+    y += 8;
+    doc.line(14, y, 196, y);
+    y += 8;
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Subtotal: BDT ${order.subtotal}`, 135, y);
+    y += 6;
+    doc.text(`Shipping Fee: BDT ${order.shippingFee}`, 135, y);
+    if (order.discountAmount > 0) {
+      y += 6;
+      doc.text(`Discount: -BDT ${order.discountAmount}`, 135, y);
+    }
+    y += 8;
     doc.setFont('helvetica', 'bold');
-    doc.text(`Grand Total: BDT ${order.totalAmount}`, 14, y);
+    doc.text(`Grand Total: BDT ${order.totalAmount}`, 135, y);
 
     doc.save(`Invoice_${order.id}.pdf`);
   };
@@ -164,8 +205,14 @@ export const CustomerDashboard: React.FC = () => {
                   <div key={order.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-3">
                     <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b dark:border-slate-700 pb-2 gap-2">
                       <div>
-                        <span className="text-xs font-mono font-black text-[#D4AF37]">ID: {order.id}</span>
-                        <p className="text-[10px] text-slate-400">{new Date(order.createdAt).toLocaleString()}</p>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xs font-mono font-black text-[#D4AF37]">ID: {order.id}</span>
+                          <span className="inline-flex items-center space-x-1 text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                            <Globe className="w-3 h-3 text-indigo-500" />
+                            <span>IP: {order.ipAddress || 'Recorded'}</span>
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-slate-400 mt-0.5">{new Date(order.createdAt).toLocaleString()}</p>
                       </div>
 
                       <div className="flex items-center space-x-2">
@@ -184,22 +231,49 @@ export const CustomerDashboard: React.FC = () => {
 
                         <button
                           onClick={() => generatePDFInvoice(order)}
-                          className="p-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-[#D4AF37] hover:text-[#0A2342] transition-colors"
+                          className="p-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-[#D4AF37] hover:text-[#0A2342] transition-colors flex items-center space-x-1 text-xs font-bold"
                           title="Download Invoice PDF"
                         >
-                          <Download className="w-4 h-4" />
+                          <Download className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">PDF</span>
                         </button>
                       </div>
                     </div>
 
+                    {/* Customer & Delivery Details */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs bg-white dark:bg-slate-900/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700/60">
+                      <div>
+                        <span className="text-slate-400 font-bold block text-[10px] uppercase">Delivery Information</span>
+                        <p className="font-bold text-slate-800 dark:text-slate-200">{order.userName} ({order.userPhone})</p>
+                        <p className="text-slate-600 dark:text-slate-300 text-[11px] mt-0.5">
+                          <MapPin className="w-3 h-3 inline text-[#D4AF37] mr-1" />
+                          {order.shippingDetails.address} {order.shippingDetails.thana ? `, ${order.shippingDetails.thana}` : ''} {order.shippingDetails.district ? `, ${order.shippingDetails.district}` : ''}
+                        </p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">Area: <span className="font-semibold text-slate-700 dark:text-slate-300">{order.shippingDetails.deliveryArea === 'inside' ? 'Inside Sherpur Sadar' : 'Outside Sherpur'}</span></p>
+                        {order.shippingDetails.notes && <p className="text-[10px] italic text-amber-600 dark:text-amber-400">Note: {order.shippingDetails.notes}</p>}
+                      </div>
+
+                      <div>
+                        <span className="text-slate-400 font-bold block text-[10px] uppercase">Payment & Method</span>
+                        <p className="font-bold uppercase text-[#D4AF37]">{order.paymentMethod}</p>
+                        {order.senderPhone && <p className="text-[11px] text-slate-600 dark:text-slate-300">Sender: <span className="font-mono font-bold">{order.senderPhone}</span></p>}
+                        {order.trxId && <p className="text-[11px] text-slate-600 dark:text-slate-300">TrxID: <span className="font-mono font-bold text-[#D4AF37]">{order.trxId}</span></p>}
+                        <p className="text-[10px] text-slate-400">Email: {order.userEmail}</p>
+                      </div>
+                    </div>
+
                     {/* Order Items */}
-                    <div className="space-y-2">
+                    <div className="space-y-2 pt-1">
                       {order.items.map((item, idx) => (
-                        <div key={idx} className="flex items-center space-x-3 text-xs">
-                          <img src={cleanImageUrl(item.image)} alt={item.title} referrerPolicy="no-referrer" onError={handleImageError} className="w-10 h-10 object-cover rounded-lg border border-slate-200" />
+                        <div key={idx} className="flex items-center space-x-3 text-xs bg-slate-100/50 dark:bg-slate-800/40 p-1.5 rounded-lg">
+                          <img src={cleanImageUrl(item.image)} alt={item.title} referrerPolicy="no-referrer" onError={handleImageError} className="w-10 h-10 object-cover rounded-lg border border-slate-200 dark:border-slate-700" />
                           <div className="flex-1 min-w-0">
                             <h5 className="font-bold truncate">{item.title}</h5>
-                            <span className="text-[10px] text-slate-400">Qty: {item.quantity} x ৳{item.price}</span>
+                            <div className="flex items-center space-x-2 text-[10px] text-slate-400">
+                              <span>Qty: {item.quantity} x ৳{item.price}</span>
+                              {item.selectedColor && <span className="bg-slate-200 dark:bg-slate-700 px-1 rounded">Color: {item.selectedColor}</span>}
+                              {item.selectedSize && <span className="bg-slate-200 dark:bg-slate-700 px-1 rounded">Size: {item.selectedSize}</span>}
+                            </div>
                           </div>
                           <span className="font-black text-[#D4AF37]">৳{(item.price * item.quantity).toLocaleString()}</span>
                         </div>
@@ -207,8 +281,8 @@ export const CustomerDashboard: React.FC = () => {
                     </div>
 
                     <div className="flex justify-between items-center pt-2 border-t dark:border-slate-700 text-xs font-black">
-                      <span>Total Amount Paid:</span>
-                      <span className="text-base text-[#0A2342] dark:text-[#E8C76A]">৳{order.totalAmount.toLocaleString()}</span>
+                      <span className="text-slate-500">Subtotal: ৳{order.subtotal} + Delivery: ৳{order.shippingFee} {order.discountAmount > 0 ? `- Discount: ৳${order.discountAmount}` : ''}</span>
+                      <span className="text-base text-[#0A2342] dark:text-[#E8C76A]">Total: ৳{order.totalAmount.toLocaleString()}</span>
                     </div>
                   </div>
                 ))

@@ -89,6 +89,7 @@ export interface Order {
   orderStatus: OrderStatus;
   appliedCoupon?: string;
   referralCode?: string;
+  ipAddress?: string;
   createdAt: string;
 }
 

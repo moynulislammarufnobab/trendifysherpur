@@ -124,6 +124,10 @@ export const OrderConfirmationModal: React.FC = () => {
             <span className="font-mono font-black text-[#D4AF37]">{order.id}</span>
           </div>
           <div className="flex justify-between">
+            <span className="text-slate-500">Order IP Address:</span>
+            <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">{order.ipAddress || 'Recorded'}</span>
+          </div>
+          <div className="flex justify-between">
             <span className="text-slate-500">Customer Name:</span>
             <span className="font-bold">{order.userName}</span>
           </div>
@@ -132,9 +136,19 @@ export const OrderConfirmationModal: React.FC = () => {
             <span className="font-bold">{order.userPhone}</span>
           </div>
           <div className="flex justify-between">
+            <span className="text-slate-500">Address:</span>
+            <span className="font-bold text-right truncate max-w-[200px]">{order.shippingDetails.address}</span>
+          </div>
+          <div className="flex justify-between">
             <span className="text-slate-500">Payment Method:</span>
             <span className="font-bold uppercase text-[#D4AF37]">{order.paymentMethod}</span>
           </div>
+          {order.trxId && (
+            <div className="flex justify-between">
+              <span className="text-slate-500">TrxID:</span>
+              <span className="font-mono font-bold text-[#D4AF37]">{order.trxId}</span>
+            </div>
+          )}
           <div className="flex justify-between text-sm font-black border-t dark:border-slate-700 pt-2 text-[#0A2342] dark:text-[#E8C76A]">
             <span>Total Amount:</span>
             <span>৳{order.totalAmount.toLocaleString()}</span>

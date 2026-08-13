@@ -115,6 +115,7 @@ interface AppContextType {
   updateSiteSettings: (settings: Partial<SiteSettings>) => Promise<void>;
   updateOrderStatus: (orderId: string, orderStatus: Order['orderStatus']) => Promise<void>;
   updatePaymentStatus: (orderId: string, paymentStatus: Order['paymentStatus']) => Promise<void>;
+  deleteOrder: (orderId: string) => Promise<void>;
   
   // Helpers
   t: (key: string) => string;
@@ -474,6 +475,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const totalAmount = Math.max(0, cartSubtotal + shippingFee - discountAmount);
     const orderId = 'TS-' + Math.floor(100000 + Math.random() * 900000);
 
+    // Fetch user public IP address
+    let clientIp = 'Unknown / Local';
+    try {
+      const ipRes = await fetch('https://api.ipify.org?format=json', { signal: AbortSignal.timeout(2500) });
+      if (ipRes.ok) {
+        const ipData = await ipRes.json();
+        if (ipData && ipData.ip) {
+          clientIp = ipData.ip;
+        }
+      }
+    } catch (e) {
+      console.warn('IP lookup timed out or failed:', e);
+    }
+
     const newOrder: Order = {
       id: orderId,
       userId: user?.uid || 'guest-' + Date.now(),
@@ -502,6 +517,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       orderStatus: 'Pending',
       appliedCoupon: couponCode || '',
       referralCode: user?.referredBy || '',
+      ipAddress: clientIp,
       createdAt: new Date().toISOString(),
     };
 
@@ -604,6 +620,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     await updateDoc(doc(db, 'orders', orderId), { paymentStatus });
   };
 
+  const deleteOrder = async (orderId: string) => {
+    await deleteDoc(doc(db, 'orders', orderId));
+  };
+
   return (
     <AppContext.Provider value={{
       language,
@@ -666,6 +686,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       updateSiteSettings,
       updateOrderStatus,
       updatePaymentStatus,
+      deleteOrder,
       t,
     }}>
       {children}
